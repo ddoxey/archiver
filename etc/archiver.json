@@ -1,0 +1,19 @@
+{
+    "dwell_time": 1800,
+    "archive_dir": "/opt/sandbox/archive",
+    "preserve_count": 3,
+    "projects": [
+        {
+            "name": "archiver",
+            "path": "/opt/archiver",
+            "excludes": [
+		".git",
+		".gitignore",
+                "log",
+                "venv",
+                "__pycache__",
+                ".swp"
+            ]
+        }
+    ]
+}
