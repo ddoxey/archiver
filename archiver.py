@@ -9,11 +9,24 @@ from tempfile import gettempdir
 import config
 
 
-def info(msg):
-    """Print message to stderr with timestamp and PID."""
+def log_txt(*tokens):
+    """Print message with timestamp and PID."""
     pid = getpid()
     date = datetime.now().strftime('%Y-%m-%d %T')
-    print(f'{date} [{pid}] {msg}', file=stderr)
+    msg = ' '.join(tokens)
+    return f'{date} [{pid}] {msg}'
+
+
+def info(*tokens):
+    """Print message with timestamp and PID."""
+    text = log_txt(*tokens)
+    print(text, flush=True)
+
+
+def warn(*tokens):
+    """Print message to stderr with timestamp and PID."""
+    text = log_txt(*tokens)
+    print(text, file=stderr, flush=True)
 
 
 def matches(filepath, tokens):
@@ -76,7 +89,7 @@ def is_ready(project):
     archive_age = datetime.now().timestamp() - archive_mtime
 
     if archive_age < project.dwell_time:
-        info(f'{project.name}: Not old enough for archiving')
+        info(f'PROJECT({project.name}) AGE({archive_age}): Not old enough for archiving')
         return False
 
     project_mtime = get_project_mtime(project)
@@ -108,7 +121,8 @@ def archive(project):
     dirname = path.dirname(archive_filepath)
 
     if not path.exists(dirname):
-        raise Exception(f'{dirname}: No such directory')
+        warn(f'{dirname}: No such directory')
+        return False
 
     temp_filepath = path.join(gettempdir(), path.basename(archive_filepath))
 
@@ -126,7 +140,8 @@ def archive(project):
     subprocess.run(tar, check=False)
 
     if not path.exists(temp_filepath):
-        raise Exception(f'{temp_filepath}: Failed to create')
+        warn(f'{temp_filepath}: Failed to create')
+        return False
 
     subprocess.run(['/usr/bin/mv',
                     '-f', temp_filepath, archive_filepath],
@@ -134,16 +149,27 @@ def archive(project):
 
     remove_old_archives(project)
 
+    return True
+
 
 def archiver():
     """Execute the archiver event loop."""
-    info('Archiver Starting')
+    info('Initialize Archives')
+
+    conf = config.load()
+
+    for project in conf['projects']:
+       info(f'PROJECT({project.name}): {project.path}')
 
     while True:
 
-        info('Loading config ...')
+        info('Loading config:', config.CONF_FILE)
 
         conf = config.load()
+
+        if not path.isdir(conf['archive_dir']):
+            warn("Directory doesn't exist:", conf['archive_dir'])
+            break
 
         for project in conf['projects']:
 

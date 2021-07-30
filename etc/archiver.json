@@ -1,6 +1,8 @@
 {
     "dwell_time": 1800,
     "archive_dir": "/opt/sandbox/archive",
+    "log_file": "/var/log/archiver.log",
+    "err_log_file": "/var/log/archiver-errors.log",
     "preserve_count": 3,
     "projects": [
         {
