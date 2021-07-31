@@ -82,7 +82,7 @@ def get_project_mtime(project):
 def is_ready(project):
     """Determine if a project is ready for archiving."""
     if not path.exists(project.path):
-        info(f'{project.path}: No such project')
+        info(f'PROJECT({project.name}) No such directory: {project.path}')
         return False
 
     archive_mtime = get_archive_mtime(project)
@@ -95,7 +95,7 @@ def is_ready(project):
     project_mtime = get_project_mtime(project)
 
     if project_mtime <= archive_mtime:
-        info(f'{project.name}: Has not changed recently')
+        info(f'PROJECT({project.name}): Has not changed SINCE({archive_mtime})')
         return False
 
     return True
@@ -110,7 +110,7 @@ def remove_old_archives(project):
         mtimes = mtimes[preserve_count:]
         for mtime in mtimes:
             filepath = archive_for[mtime]
-            info(f'{project.name}: Removing old archive {filepath}')
+            info(f'PROJECT({project.name}): Removing old archive {filepath}')
             remove(filepath)
 
 

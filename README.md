@@ -15,6 +15,8 @@ Each project directory is described in: /etc/archiver.json
     "dwell_time": 900,                 # time between archives
     "archive_dir": "/opt/archive",     # location of archives
     "preserve_count": 3,               # how many to preserve
+    "log_file": "/var/log/archiver.log",
+    "err_log_file": "/var/log/archiver-errors.log",
     "projects": [
         {
             "name": "archiver",        # project name
